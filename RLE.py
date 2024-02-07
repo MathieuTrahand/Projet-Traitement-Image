@@ -40,21 +40,21 @@ def decodage_RLE(compressed_matrix):
     return np.array(decompressed_matrix, dtype=np.int32).reshape((-1, 3))
 
 
-matrice = convert_image_matrice(r"T:\image.png")
+matrice = convert_image_matrice(r"T:\image_bitmap.bmp")
 
 # Affichage de la matrice (les valeurs des pixels)
-#print("Matrice de pixels:")
-#print(matrice)
+print("Matrice de pixels:")
+print(matrice)
 
 # Encodage RLE
 matrice_compresse = codage_RLE(matrice)
-#print("\nDonnées encodées RLE:")
-#print(matrice_compresse)
+print("\nDonnées encodées RLE:")
+print(matrice_compresse)
 
 # Décodage RLE
 matrice_decomp = decodage_RLE(matrice_compresse)
-#print("\nMatrice décompressée:")
-#print(matrice_decomp)
+print("\nMatrice décompressée:")
+print(matrice_decomp)
 
 # Assurez-vous que les valeurs sont dans la plage correcte (0 à 255)
 matrice_decomp = np.clip(matrice_decomp, 0, 255).astype(np.uint8)
