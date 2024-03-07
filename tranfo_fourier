@@ -1,0 +1,71 @@
+import sys
+from PIL import Image
+import math as mt
+
+
+def get_data_from_image(nom: str)->list:
+    '''
+        Ouvre un fichier image et renvoie la matrice des valeurs des pixels la constituant.
+
+        ENTREE : nom = le nom du fichier image
+        SORTIE : la matrice des valeurs de pixels
+    '''
+    photo = Image.open(nom)
+    pixels = photo.load()
+    data = []
+    width, height = photo.size
+    for y in range(height):
+        ligne = []
+        for x in range(width):
+            ligne.append(pixels[x, y])
+        data.append(ligne)
+    return data
+
+def save_image_from_data(nom: str, data: list)->None:
+    '''
+        Enregistre un fichier image à partir de la matrice des valeurs des pixels la constituant.
+        FORMAT NIVEAUX DE GRIS ( pixels codés sur un seul entier à 8 bits, 0 = noir -> 255 = blanc )
+        ENTREES :   nom =  le nom du fichier image
+                    data = la matrice des valeurs de pixels
+        SORTIE : aucune
+    '''
+    h = len(data)
+    l = len(data[0])
+    photo = Image.new('L',(l, h))
+    pixels = photo.load()
+    for y in range(h):
+        for x in range(l):
+            pixels[x, y] = data[y][x]
+    photo.save(nom)
+
+
+matrice= get_data_from_image("grass_side.png")
+
+# print(matrice)
+matrice_r=[[0 for i in range(8)]for i in range(8)]
+for i in range(8):
+    for j in range(8):
+        matrice_r[i][j]=matrice[i][j][0]
+    
+def transfo_fourier(matrice):
+    new_matrice=[[0 for i in range(8)]for i in range(8)]
+    for i in range(8):
+        if i==0:
+            a=1/mt.sqrt(2)
+        else:
+            a=1
+        somme=0
+        for j in range(8):
+            if j == 0:
+                b=1/mt.sqrt(2)
+            else:
+                b=1
+            for x in range(8):
+                for y in range(8):
+                    pixel=matrice[x][y]
+                    somme+=pixel*mt.cos(((2*x+1)*i* mt.pi)/2*8)*mt.cos(((2*x+1)*j * mt.pi)/2*8)
+            new_matrice[i][j]=somme*(2/8)*a*b
+    return new_matrice
+
+print(transfo_fourier(matrice_r))
+                
