@@ -1,0 +1,146 @@
+import sys
+from PIL import Image
+import math as mt
+
+
+def get_data_from_image(nom: str)->list:
+    '''
+        Ouvre un fichier image et renvoie la matrice des valeurs des pixels la constituant.
+
+        ENTREE : nom = le nom du fichier image
+        SORTIE : la matrice des valeurs de pixels
+    '''
+    photo = Image.open(nom)
+    pixels = photo.load()
+    data = []
+    width, height = photo.size
+    for y in range(height):
+        ligne = []
+        for x in range(width):
+            ligne.append(pixels[x, y])
+        data.append(ligne)
+    return data
+
+def save_image_from_data(nom: str, data: list)->None:
+    '''
+        Enregistre un fichier image à partir de la matrice des valeurs des pixels la constituant.
+        FORMAT NIVEAUX DE GRIS ( pixels codés sur un seul entier à 8 bits, 0 = noir -> 255 = blanc )
+        ENTREES :   nom =  le nom du fichier image
+                    data = la matrice des valeurs de pixels
+        SORTIE : aucune
+    '''
+    h = len(data)
+    l = len(data[0])
+    photo = Image.new('L',(l, h))
+    pixels = photo.load()
+    for y in range(h):
+        for x in range(l):
+            pixels[x, y] = data[y][x]
+    photo.save(nom)
+
+
+matrice= get_data_from_image("grass_side.bmp")
+
+# print(matrice)
+
+# print(matrice)
+matrice_r=[[0 for i in range(8)]for i in range(8)]
+for i in range(8):
+    for j in range(8):
+        matrice_r[i][j]=matrice[i][j][0]
+
+    
+def transfo_fourier(matrice):
+    new_matrice=[[0 for i in range(8)]for i in range(8)]
+    for i in range(8): # Boucle de parcours par ligne de la nmatrice dans la nouvelle base
+        if i==0: # Attribution des coefficients C(i)
+            a=1/mt.sqrt(2)
+        else:
+            a=1
+        for j in range(8): # Boucle de parcours dans la ligne de la nouvelle matrice
+            if j == 0: # Attribution des coefficients C(j)
+                b=1/mt.sqrt(2)
+            else:
+                b=1
+            somme=0
+
+            for x in range(8): # Première partie de la somme, sur x
+                for y in range(8): # Deuxième partie de la somme, sur y
+                    pixel=matrice[x][y]
+                    somme +=pixel*mt.cos((((2*x)+1) * i * mt.pi ) / (2*8))*mt.cos(((2*y+1) * j * mt.pi) / (2*8))
+
+            new_matrice[i][j]=round(somme*(2/8)*a*b) # Ajoute dans la matrice le résultat dans la bonne case
+    return new_matrice
+
+
+def transfo_fourier_inverse(matrice):
+    new_matrice=[[0 for i in range(8)]for i in range(8)]
+    for x in range(8):
+        for y in range(8):
+            somme=0
+            for i in range(8):
+                if i==0:
+                    a=1/mt.sqrt(2)
+                else:
+                    a=1
+                for j in range(8):
+                    if j == 0:
+                        b=1/mt.sqrt(2)
+                    else:
+                        b=1
+                    coef=matrice[i][j]
+                    somme+=coef*mt.cos(((2*x+1)*i*mt.pi)/(2*8))*mt.cos(((2*y+1)*j*mt.pi)/(2*8))*a*b
+            new_matrice[x][y]=round(somme*(2/8))
+    return new_matrice
+
+def quantif(matrice):
+    """
+    Fonction qui quantifie une matrice ayant subi une transformée de Fourier
+    Ici on prendra toujours la même matrice de quantification Q
+    """
+    Q=[[16,11,10,16,24,40,51,61],
+       [12,12,14,19,26,58,60,55],
+       [14,13,16,24,40,57,69,56],
+       [14,17,22,29,51,87,80,62],
+       [18,22,37,56,68,109,103,77],
+       [24,35,55,64,81,104,113,92],
+       [49,64,78,87,103,121,120,101],
+       [72,92,95,98,112,100,103,99]]
+    new_matrice=[[0 for i in range(8)]for i in range(8)]
+    for u in range(8):
+        for v in range(8):
+            new_matrice[u][v]=mt.floor(((matrice[u][v])+mt.floor(Q[u][v]/2))/(Q[u][v]))
+    return new_matrice
+
+
+
+matrice_ex=[[139,144,149,153,155,155,155,155],
+            [144,151,153,156,159,156,156,156],
+            [150,155,160,163,158,156,156,156],
+            [159,161,162,160,160,159,159,159],
+            [159,160,161,162,162,155,155,155],
+            [161,161,161,161,160,157,157,157],
+            [162,162,161,163,162,157,157,157],
+            [162,162,161,161,163,158,158,158]]
+
+mat_ex=[[1260,-1,-12,-5,2,-2,-3,1],
+        [-23,-17,-6,-3,-3,0,0,-1],
+        [-11,-9,-2,2,0,-1,-1,0],
+        [-7,-2,0,1,1,0,0,0],
+        [-1,-1,1,2,0,-1,-1,0],
+        [2,0,2,0,-1,1,1,-1],
+        [-1,0,0,-1,0,2,1,-1],
+        [-3,2,-4,-2,2,1,-1,0]]
+
+mat=transfo_fourier(matrice_ex)
+for i in range(8):
+    print(mat[i])
+"""
+inv=transfo_fourier_inverse(mat_ex)
+for j in range(8):
+    print(inv[j])
+"""
+print()
+quant=quantif(mat)
+for u in range(8):
+    print(quant[u])
