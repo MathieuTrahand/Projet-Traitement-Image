@@ -56,7 +56,7 @@ matrice_decomp = decodage_RLE(matrice_compresse)
 print("\nMatrice décompressée:")
 print(matrice_decomp)
 
-# Assurez-vous que les valeurs sont dans la plage correcte (0 à 255)
+# On s'assure que les valeurs sont dans la plage correcte (0 à 255)
 matrice_decomp = np.clip(matrice_decomp, 0, 255).astype(np.uint8)
 
 # Afficher l'image décompressée avec Matplotlib
