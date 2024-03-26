@@ -2,12 +2,12 @@ import numpy as np
 from PIL import Image
 import os
 
-def chroma_subsample(image, width=None, height=None, ratio=(4, 2, 2)):
+def sous_echant(image, largeur=None, hauteur=None, ratio=(4, 2, 2)):
     # Vérifiez les arguments d'entrée
-    if width is None:
-        width = image.width
-    if height is None:
-        height = image.height
+    if largeur is None:
+        largeur = image.width
+    if hauteur is None:
+        hauteur = image.height
 
     # Convertissez l'image en mode YCbCr
     image = image.convert('YCbCr')
@@ -16,36 +16,38 @@ def chroma_subsample(image, width=None, height=None, ratio=(4, 2, 2)):
     y, cb, cr = image.split()
 
     # Calculez les nouvelles dimensions pour les canaux Cb et Cr
-    new_width = width // ratio[1]
-    new_height = height // ratio[0]
+    new_largeur = largeur // ratio[1]
+    new_hauteur = hauteur // ratio[0]
 
     # Redimensionnez les canaux Y, Cb et Cr
-    y = y.resize((new_width, new_height))
-    cb = cb.resize((new_width, new_height))
-    cr = cr.resize((new_width, new_height))
+    y = y.resize((new_largeur, new_hauteur))
+    cb = cb.resize((new_largeur, new_hauteur))
+    cr = cr.resize((new_largeur, new_hauteur))
 
     # Réassemblez les canaux Y, Cb et Cr en une seule image
-    image_subsampled = Image.merge('YCbCr', (y, cb, cr))
+    image_echantillonnee = Image.merge('YCbCr', (y, cb, cr))
 
     # Convertissez l'image en mode RGB
-    image_subsampled = image_subsampled.convert('RGB')
+    image_echantillonnee = image_echantillonnee.convert('RGB')
 
     # Enregistrer l'image compressée
     filename = 'image_sous_échantillonnée.png'
-    image_subsampled.save(filename)
+    image_echantillonnee.save(filename)
 
     #Calcul des tailles des deux images
-    size_original = os.path.getsize(r"T:\Fond ecran\2233780901_preview_2.jpg")
-    size_compressed = os.path.getsize(filename)
-    print(f'Taille de limage originale: {size_original} bytes')
-    print(f'Taille de limage sous-échantillonnée compressée: {size_compressed} bytes')
-    return image_subsampled
+    taille_origine = os.path.getsize(r"T:\Fond ecran\2233780901_preview_2.jpg")
+    taille_compressee = os.path.getsize(filename)
+    print(f'Taille de limage originale: {taille_origine} bytes')
+    print(f'Taille de limage sous-échantillonnée compressée: {taille_compressee} bytes')
+    return image_echantillonnee
+
+###TEST ET ANALYSES
 
 # Chargez l'image
 image = Image.open(r"T:\Fond ecran\2233780901_preview_2.jpg")
 
-# Appelez la fonction de sous-échantillonnage de chrominance
-image_subsampled = chroma_subsample(image)
+# Appel de la fonction de sous-échantillonnage de chrominance
+image_echantillonnee = sous_echant(image)
 
-# Affichez l'image sous-échantillonnée
-image_subsampled.show('Image sous-échantillonnée')
+# Affichage l'image sous-échantillonnée
+image_echantillonnee.show('Image sous-échantillonnée')
